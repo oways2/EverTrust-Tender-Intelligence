@@ -1,0 +1,2 @@
+export type Priority="HOT"|"RELEVANT"|"REVIEW"|"SKIP";
+export type Tender={id:string;source:string;organization:string;reference:string;title:string;type:string;location:string;category:string;published:string;deadline:string;url:string;priority:Priority;match:number;summary:string;requirements:string[];status:"open"|"closed"|"unknown"};
