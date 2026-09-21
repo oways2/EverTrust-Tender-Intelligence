@@ -1,0 +1,9 @@
+create extension if not exists pgcrypto;
+create table if not exists sources(id text primary key,name text not null,url text not null,enabled boolean not null default true,tier int not null default 3,last_run_at timestamptz,last_success_at timestamptz,last_error text);
+create table if not exists tenders(id uuid primary key default gen_random_uuid(),source_id text references sources(id),external_id text,source_url text not null,title text not null,organization text,reference_no text,tender_type text,location text,category text,published_at timestamptz,deadline_at timestamptz,status text not null default 'open',summary text,raw_text text,match_score int,priority text,first_seen_at timestamptz not null default now(),last_seen_at timestamptz not null default now(),unique(source_id,external_id));
+create index if not exists tenders_deadline_idx on tenders(deadline_at);
+create index if not exists tenders_priority_idx on tenders(priority);
+create table if not exists tender_documents(id uuid primary key default gen_random_uuid(),tender_id uuid not null references tenders(id) on delete cascade,url text not null,file_name text,content_type text,sha256 text,extracted_text text,created_at timestamptz not null default now());
+create table if not exists crawl_runs(id uuid primary key default gen_random_uuid(),source_id text references sources(id),started_at timestamptz not null default now(),finished_at timestamptz,status text,items_found int default 0,error text);
+create table if not exists alerts(id uuid primary key default gen_random_uuid(),tender_id uuid references tenders(id) on delete cascade,channel text not null,recipient text,delivered_at timestamptz,status text not null default 'pending');
+create index if not exists alerts_status_idx on alerts(status);
